@@ -1,12 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 const LoginForm = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Handle successful login (e.g., redirect or save token)
+        console.log('Login successful', data);
+      } else {
+        // Handle login error
+        setError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError('An error occurred while logging in');
+    }
+  };
+
   return (
-    <form method="POST" action="https://achieverspayment.com/login">
-      <input type="hidden" name="_token" value="KBljuUvpvs2F4P7QDEQ1McXuhLMDTufbtJjNossm" />
-      
+    <form onSubmit={handleLogin}>
       <div className="input-group mb-3">
         <input
           type="text"
@@ -16,6 +45,8 @@ const LoginForm = () => {
           required
           autoFocus
           autoComplete="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <div className="input-group-append">
           <div className="input-group-text">
@@ -32,6 +63,8 @@ const LoginForm = () => {
           name="password"
           required
           autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <div className="input-group-append">
           <div className="input-group-text">
@@ -39,6 +72,8 @@ const LoginForm = () => {
           </div>
         </div>
       </div>
+
+      {error && <div className="alert alert-danger">{error}</div>}
 
       <div className="row">
         <div className="col-8">
